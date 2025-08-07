@@ -10,7 +10,7 @@ all: $(EXECUTABLE)
 # Final binary executable
 $(EXECUTABLE):
 	mkdir -p $(OUTPUT_DIR)
-	$(CC) $(CFLAGS) src/main.c -o $(OUTPUT_DIR)/$(EXECUTABLE)
+	$(CC) $(CFLAGS) src/tun.c src/main.c -o $(OUTPUT_DIR)/$(EXECUTABLE)
 
 # Delete built files from project directory
 clean:
