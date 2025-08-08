@@ -15,6 +15,7 @@ struct tun_info
 
 struct tun_info *create_tun();
 int set_ip_address(struct tun_info *tun, const char *address);
+int set_subnet_mask(struct tun_info *tun, const char *mask);
 void free_tun(struct tun_info *tun);
 
 #endif

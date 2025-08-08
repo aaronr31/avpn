@@ -26,6 +26,13 @@ int main()
         return -1;
     }
 
+    if (set_subnet_mask(vpn_tun, "255.255.255.0") < 0)
+    {
+        log_error("Could not assign Subnet Mask - %s", strerror(errno));
+        free_tun(vpn_tun);
+        return -1;
+    }
+
     // Main loop
     while (1)
     {

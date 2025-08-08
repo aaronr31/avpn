@@ -55,6 +55,7 @@ struct tun_info *create_tun()
  * @brief Assign an IPv4 address to a tun interface.
  *
  * @param tun Pointer to struct of tun info.
+ * @param address IP address string.
  */
 int set_ip_address(struct tun_info *tun, const char *address)
 {
@@ -72,7 +73,36 @@ int set_ip_address(struct tun_info *tun, const char *address)
 
     // Assign IP address representation to interface
     tun->ifr.ifr_addr = *(struct sockaddr *)&sock_addr;
-    return ioctl(sockfd, SIOCSIFADDR, &tun->ifr);
+    int result = ioctl(sockfd, SIOCSIFADDR, &tun->ifr);
+
+    close(sockfd);
+    return result;
+}
+
+/**
+ * @brief Assign a subnet mask to a tun interface.
+ *
+ * @param tun Pointer to struct of tun info.
+ * @param mask Subnet mask string.
+ */
+int set_subnet_mask(struct tun_info *tun, const char *mask)
+{
+    // Basically the same implementation as set_ip address above
+    int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+
+    log_debug("Setting subnet mask for tun interface: %s", tun->ifr.ifr_name);
+
+    struct sockaddr_in sock_addr;
+    memset(&sock_addr, 0, sizeof(struct sockaddr_in));
+    sock_addr.sin_family = AF_INET;
+    sock_addr.sin_port = 0;
+    inet_pton(AF_INET, mask, &sock_addr.sin_addr);
+
+    tun->ifr.ifr_netmask = *(struct sockaddr *)&sock_addr;
+    int result = ioctl(sockfd, SIOCSIFNETMASK, &tun->ifr);
+
+    close(sockfd);
+    return result;
 }
 
 /**
