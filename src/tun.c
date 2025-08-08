@@ -11,6 +11,7 @@
 #include "sys/ioctl.h"
 #include "unistd.h"
 
+#include "logger.h"
 #include "tun.h"
 
 /**
@@ -32,6 +33,7 @@ struct tun_info *create_tun()
     {
         return tun;
     }
+    log_debug("Opened tun file: %d", tun->fd);
 
     // Request to create tun interface
     tun->ifr.ifr_flags = IFF_TUN;
@@ -41,6 +43,7 @@ struct tun_info *create_tun()
         close(tun->fd);
         return tun;
     }
+    log_debug("Created tun interface: %s", tun->ifr.ifr_name);
 
     return tun;
 }
