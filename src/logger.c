@@ -5,6 +5,7 @@
 #define LOG_DEBUG 0
 #define LOG_INFO 1
 #define LOG_WARN 2
+#define LOG_ERROR 3
 
 #define LOG_LEVEL 0
 
@@ -31,6 +32,17 @@ void log_debug(const char *format, ...)
         va_list args;
         va_start(args, format);
         log_stdout("DEBUG", format, args);
+        va_end(args);
+    }
+}
+
+void log_error(const char *format, ...)
+{
+    if (LOG_LEVEL <= LOG_ERROR)
+    {
+        va_list args;
+        va_start(args, format);
+        log_stdout("ERROR", format, args);
         va_end(args);
     }
 }
