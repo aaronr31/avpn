@@ -1,11 +1,15 @@
 /**
- * Create, manage, read from and write to a TUN interface
+ * @file tun.c
+ * @brief Create, manage, read from and write to a TUN interface
+ *
  * TUN is a virtual network interface that tunnels L3 packets to userspace.
+ * See for more: https://docs.kernel.org/networking/tuntap.html
  */
 
 #include "fcntl.h"
 #include "linux/if.h"
 #include "linux/if_tun.h"
+#include "net/route.h"
 #include "netinet/in.h"
 #include "stdlib.h"
 #include "string.h"
@@ -103,6 +107,50 @@ int set_subnet_mask(struct tun_info *tun, const char *mask)
 
     close(sockfd);
     return result;
+}
+
+/**
+ * @brief This is a helper function for the client to get
+ * the network address of a subnet for it's routing table based on the
+ * address and subnet mask the interface lives in.
+ *
+ * It basically just performs a bitwise AND between the
+ * address and the mask.
+ *
+ * @param addr String form of address.
+ * @param mask String form of net mask.
+ * @param buf Buffer to hold result - MUST have at least size INET_ADDRSTRLEN
+ *
+ * @return String form of the subnet's network address.
+ */
+void get_network_address(const char *addr, const char *mask, char *buf)
+{
+    // Convert string to binary
+    struct sockaddr_in sock_addr;
+    struct sockaddr_in sock_mask;
+    memset(&sock_addr, 0, sizeof(struct sockaddr_in));
+    memset(&sock_mask, 0, sizeof(struct sockaddr_in));
+
+    inet_pton(AF_INET, addr, &sock_addr.sin_addr);
+    inet_pton(AF_INET, mask, &sock_mask.sin_addr);
+
+    // Bitwise AND
+    struct sockaddr_in sock_res;
+    sock_res.sin_addr.s_addr = sock_addr.sin_addr.s_addr & sock_mask.sin_addr.s_addr;
+
+    // Binary back to string;
+    inet_ntop(AF_INET, &sock_res.sin_addr, buf, INET_ADDRSTRLEN);
+}
+
+/**
+ * @brief Add routing table entry to direct traffic
+ * to the tun interface appropriately.
+ *
+ * @param target_addr String form of target address for route.
+ * @param target_mask String form of target net mask for route.
+ */
+void set_route(const char *target_addr, const char *target_mask)
+{
 }
 
 /**
